@@ -8,6 +8,9 @@ When paired with the companion software Y2H-SCORES (https://github.com/Wiselab2/
 
 While NGPINT has proven to be a powerful research tool, its usability was previously limited by compatibility issues due to numerous dependencies. To address these challenges and enhance both usability and accessibility, we're excited to introduce NGPINT_V3. This version features a containerized implementation of NGPINT_V2 (https://github.com/Wiselab2/NGPINT_V2) using Singularity and Docker, which ensures compatibility across virtually any operating system and computing environment. The update simplifies dependencies and provides container images hosted on Sylabs and Dockerhub, making it easier to adopt and integrate NGPINT into high-throughput and cloud-computing workflows. 
 
+Dockerhub container: https://hub.docker.com/r/schuylerds/ngpint
+Sylabs container: https://cloud.sylabs.io/library/schuyler/ngpint/ngpint
+
 ## Instructions
 
 ### Docker
