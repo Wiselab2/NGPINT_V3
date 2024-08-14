@@ -1,6 +1,6 @@
 # NGPINT_V3
 
-Welcome to the latest version of NGPINT! (NGPINT_V3)
+Welcome to the latest version of NGPINT (NGPINT_V3)
 
 NGPINT is a software that process Yeast two-hybrid (Y2H) assays, combined with next-generation sequencing (NGS) data. It has driven significant advancements in analyzing protein-protein interactions (PPIs). The NGPINT pipeline, our Python-based bioinformatics tool, processes Y2H-NGS data to identify and quantify potential PPIs by examining both total and fusion read abundances. 
 
@@ -14,20 +14,21 @@ While NGPINT has proven to be a powerful research tool, its usability was previo
 
 To start, pull the container
 
-$ docker pull schuylerds/ngpint
+`docker pull schuylerds/ngpint`
 
-mount your working directory into the docker image (this is where the outputs will be placed)
-mount your data folder into the docker, where your fastq files are
-mount your metadate file to pass to NGPINT
+Then, mount all the inputs to run the software, inlcuding:
+1) Your working directory into the docker image (this is where the outputs will be placed)
+2) Your data folder into the docker, where your fastq files are
+3) Your metadata file to pass to NGPINT
 if other necessary files are located 
 
-The `/app` directory is the working directory of the NGPNIT container. Anything mounted here will be included in the mounted working directory.
+The `/app` directory is the working directory of the NGPNIT container. Anything mounted here will be included in the mounted working directory. An example of the commands would look like:
 
-docker run ^
+`docker run ^
     -v C:\Users\scientist\wrkdir:/app/ ^
     -v C:\Users\scientist\NGPINT_V2\example:/data ^
     -v C:\Users\scientist\NGPINT_V2\metadata_from_developers.csv:/metadata_from_developers.csv ^
-    schuylerds/ngpint ngpint -a /metadata_from_developers.csv
+    schuylerds/ngpint ngpint -a /metadata_from_developers.csv`
 
 
 ### Singularity
@@ -38,4 +39,4 @@ singularity works on metal. It does not need filesystem mounts as Docker does. T
 
 Then run the program using
 
-singularity exec ngpint.sif ngpint -a metadata_from_developers.csv
+`singularity exec ngpint.sif ngpint -a metadata_from_developers.csv`
