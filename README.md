@@ -232,8 +232,8 @@ Fusion read alignments are altered such that the vector portion of such reads ap
 If you use `NGPINT_V3`, please cite the following papers 
 
 1. Banerjee S, Velásquez-Zapata V, Fuerst, G, Elmore JM, Wise RP. 2020. [NGPINT: A Next-generation protein-protein interaction software. Briefings in Bioinformatics](https://doi.org/10.1093/bib/bbaa351)
-2. Velásquez-Zapata V, Elmore JM, Banerjee S, Dorman KS, Wise RP. 2020. [Next-generation yeast-two-hybrid analysis with Y2H-SCORES identifies novel interactors of the MLA immune receptor. PLOS Computational Biology](https://doi.org/10.1371/journal.pcbi.1008890)
-3. Velásquez-Zapata, V., Elmore, J.M., and Wise, R.P. (2023). [Bioinformatic analysis of yeast two-hybrid next-generation interaction screen data](https://doi.org/10.1007/978-1-0716-3327-4_20). In Protein-Protein Interactions: Methods and Protocols, S. Mukhtar, ed. (Springer US), pp. 223–239. .
+2. Velásquez-Zapata V, Elmore JM, Banerjee S, Dorman KS, Wise RP. 2021. [Next-generation yeast-two-hybrid analysis with Y2H-SCORES identifies novel interactors of the MLA immune receptor. PLOS Computational Biology](https://doi.org/10.1371/journal.pcbi.1008890)
+3. Velásquez-Zapata, V., Elmore, J.M., and Wise, R.P. 2023. [Bioinformatic analysis of yeast two-hybrid next-generation interaction screen data](https://doi.org/10.1007/978-1-0716-3327-4_20). In Protein-Protein Interactions: Methods and Protocols, S. Mukhtar, ed. (Springer US), pp. 223–239
 
 ## License
 
