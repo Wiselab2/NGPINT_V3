@@ -7,13 +7,6 @@ This software manual describes how to operate NGPINT_V3 to generate a list of po
 
 # Installing NGPINT_V3
 
-## Downloading NGPINT_V3
-
-```bash
-git clone https://github.com/Wiselab2/NGPINT_V3.git
-cd NGPINT_V3
-gunzip example/*.gz
-```
 
 ## Installing dependencies
 
@@ -58,6 +51,14 @@ singularity exec ngpint_v3.sif ngpint -a metadata_from_developers.csv
 `NGPINT_V3` requires a configuration file that tells the program where to search for the input files and also sets a number of parameters. Click here to set up the configuration file
 
 ## Running the Demonstration Package
+
+### Downloading NGPINT_V3
+
+```bash
+git clone https://github.com/Wiselab2/NGPINT_V3.git
+cd NGPINT_V3
+gunzip example/*.gz
+```
 
 After downloading and decompressing the files from the pakage repo, the examples folder should contain the following files:
 
