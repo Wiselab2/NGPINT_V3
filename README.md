@@ -52,7 +52,7 @@ singularity pull ngpint_v3.sif library://schuyler/ngpint/ngpint_v3
 And then it can be run through Singularity, calling `singularity`, the `exec` function, the `sif` container file, and then the function within the `sif` container `ngpint`, followed by the arguments to that function.
 
 ```
-singularity exec ../ngpint_v3.sif ngpint -a metadata_from_developers.csv
+singularity exec ngpint_v3.sif ngpint -a metadata_from_developers.csv
 ```
 
 `NGPINT_V3` requires a configuration file that tells the program where to search for the input files and also sets a number of parameters. Click here to set up the configuration file
