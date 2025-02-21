@@ -32,27 +32,27 @@ NGPINT_V3 makes NGPINT available from two container repositories, `Docker` and `
 To use the Docker image, firt pull then image from the repository
 
 ```
-docker pull schuylerds/ngpint
+docker pull schuylerds/ngpint_v3
 ```
 
 And then it can be run through Docker, calling `docker`, the `run` function, the container file, followed by the arguments to the ngpint function.
 
 ```
-docker run schuylerds/ngpint
-docker run schuylerds/ngpint -a sample_metadata.csv
+docker run schuylerds/ngpint_v3
+docker run schuylerds/ngpint_v3 -a sample_metadata.csv
 ```
 ## Singularity
 
 To use the Singularity image, firt pull then image from the repository
 
 ```
-singularity pull ngpint.sif library://schuyler/ngpint/ngpint
+singularity pull ngpint_v3.sif library://schuyler/ngpint/ngpint_v3
 ```
 
 And then it can be run through Singularity, calling `singularity`, the `exec` function, the `sif` container file, and then the function within the `sif` container `ngpint`, followed by the arguments to that function.
 
 ```
-singularity exec ../ngpint.sif ngpint -a metadata_from_developers.csv
+singularity exec ../ngpint_v3.sif ngpint -a metadata_from_developers.csv
 ```
 
 `NGPINT_V3` requires a configuration file that tells the program where to search for the input files and also sets a number of parameters. Click here to set up the configuration file
