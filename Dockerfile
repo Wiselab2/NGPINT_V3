@@ -47,7 +47,7 @@ RUN R -e 'install.packages("BiocManager")'
 RUN R -e 'BiocManager::install("DESeq2", update = TRUE)'
 
 WORKDIR /opt
-ENV PATH ${PATH}:/opt/
+ENV PATH="/opt:$PATH"
 
 ARG PROGRAM="Trimmomatic"
 ARG VERSION="0.39"
@@ -59,7 +59,7 @@ RUN wget https://github.com/usadellab/Trimmomatic/files/5854859/Trimmomatic-${VE
   && echo "java -jar ${PWD}/${PROGRAM}-${VERSION}/trimmomatic-${VERSION}.jar \${@}" >> trimmomatic \
   && chmod +x trimmomatic \
   && cp -r ${PROGRAM}-${VERSION}/adapters ./
-ENV PATH ${PATH}:/opt/${PROGRAM}-${VERSION}/
+ENV PATH=/opt/${PROGRAM}-${VERSION}:${PATH}
 
 ARG PROGRAM="STAR"
 ARG VERSION="2.7.1a"
@@ -68,7 +68,7 @@ RUN wget https://github.com/alexdobin/${PROGRAM}/archive/${VERSION}.zip \
   && unzip ${PROGRAM}.zip \
   && rm ${PROGRAM}.zip \
   && make -C ${PROGRAM}-${VERSION}/source STAR STARlong
-ENV PATH ${PATH}:/opt/${PROGRAM}-${VERSION}/bin/Linux_x86_64
+ENV PATH=/opt/${PROGRAM}-${VERSION}/bin/Linux_x86_64:${PATH}
 
 ARG PROGRAM="samtools"
 ARG VERSION="1.14"
@@ -85,7 +85,7 @@ RUN wget https://github.com/COMBINE-lab/${PROGRAM}/releases/download/v${VERSION}
   -O ${PROGRAM}.tar.gz \
   && tar xzf ${PROGRAM}.tar.gz \
   && rm ${PROGRAM}.tar.gz
-ENV PATH ${PATH}:/opt/${PROGRAM}-${VERSION}_linux_x86_64/bin/
+ENV PATH=/opt/${PROGRAM}-${VERSION}_linux_x86_64/bin/:${PATH}
 
 ARG PROGRAM="gffread"
 ARG VERSION="0.12.7"
@@ -93,7 +93,7 @@ RUN wget https://github.com/gpertea/${PROGRAM}/releases/download/v${VERSION}/${P
   -O ${PROGRAM}.tar.gz \
   && tar xzf ${PROGRAM}.tar.gz \
   && rm ${PROGRAM}.tar.gz
-ENV PATH ${PATH}:/opt/${PROGRAM}-${VERSION}.Linux_x86_64/
+ENV PATH=/opt/${PROGRAM}-${VERSION}.Linux_x86_64/:${PATH}
 
 ARG PROGRAM="NGPINT"
 ARG VERSION="1.0.0"
@@ -105,9 +105,8 @@ RUN wget https://github.com/Wiselab2/NGPINT/archive/refs/tags/NGPINTv${VERSION}.
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
 COPY ngpint ./
-COPY NGPINT_V2.py ./
 COPY scripts/ ./scripts/
 COPY perform_DE_analysis_deseq2.R ./
 
-ENTRYPOINT [ "python", "ngpint" ]
+ENTRYPOINT [ "python3", "ngpint" ]
 # CMD ["/bin/bash"]
