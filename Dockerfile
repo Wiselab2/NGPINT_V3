@@ -107,6 +107,8 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 COPY ngpint ./
 COPY scripts/ ./scripts/
 COPY perform_DE_analysis_deseq2.R ./
+RUN sed -i 's/\r$//' /opt/ngpint /opt/perform_DE_analysis_deseq2.R \
+  && chmod +x /opt/ngpint /opt/perform_DE_analysis_deseq2.R
 
-ENTRYPOINT [ "python3", "ngpint" ]
+ENTRYPOINT [ "python3", "/opt/ngpint" ]
 # CMD ["/bin/bash"]

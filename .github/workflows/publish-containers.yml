@@ -109,7 +109,9 @@ jobs:
         run: |
           apptainer exec ngpint_v3.sif python3 --version
           apptainer exec ngpint_v3.sif R --version
-          apptainer exec ngpint_v3.sif which STAR samtools salmon gffread
+          apptainer exec ngpint_v3.sif which ngpint perform_DE_analysis_deseq2.R STAR samtools salmon gffread
+          apptainer exec ngpint_v3.sif ngpint --help
+          apptainer run ngpint_v3.sif --help
 
       - name: Push Apptainer SIF to GHCR via ORAS
         env:
