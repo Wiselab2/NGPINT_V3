@@ -1,0 +1,123 @@
+name: Publish Docker and Apptainer Containers
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  docker:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_ref: ${{ steps.image_info.outputs.image_ref }}
+      tags_csv: ${{ steps.image_info.outputs.tags_csv }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          provenance: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Export image reference and tags for Apptainer job
+        id: image_info
+        if: github.event_name != 'pull_request'
+        env:
+          META_TAGS: ${{ steps.meta.outputs.tags }}
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          IMAGE_NAME=$(echo "${{ env.REGISTRY }}/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          TAGS_CSV=$(printf '%s\n' "$META_TAGS" | awk -F: 'NF {print $NF}' | paste -sd, -)
+          echo "image_ref=${IMAGE_NAME}@${IMAGE_DIGEST}" >> "$GITHUB_OUTPUT"
+          echo "tags_csv=${TAGS_CSV}" >> "$GITHUB_OUTPUT"
+
+  apptainer:
+    name: Build and push Apptainer SIF image
+    needs: docker
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Set up Apptainer
+        uses: eWaterCycle/setup-apptainer@v3
+        with:
+          apptainer-version: latest
+
+      - name: Log in to GitHub Container Registry
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GHCR_TOKEN" | apptainer registry login \
+            -u "${{ github.actor }}" \
+            --password-stdin \
+            oras://${{ env.REGISTRY }}
+
+      - name: Build Apptainer SIF from published Docker image
+        run: |
+          apptainer build ngpint_v3.sif "docker://${{ needs.docker.outputs.image_ref }}"
+
+      - name: Smoke test Apptainer SIF
+        run: |
+          apptainer exec ngpint_v3.sif python3 --version
+          apptainer exec ngpint_v3.sif R --version
+          apptainer exec ngpint_v3.sif which STAR samtools salmon gffread
+
+      - name: Push Apptainer SIF to GHCR via ORAS
+        env:
+          TAGS_CSV: ${{ needs.docker.outputs.tags_csv }}
+        run: |
+          SIF_IMAGE=$(echo "${{ env.REGISTRY }}/${{ github.repository }}-sif" | tr '[:upper:]' '[:lower:]')
+          IFS=',' read -ra TAGS <<< "$TAGS_CSV"
+          for tag in "${TAGS[@]}"; do
+            echo "Pushing oras://${SIF_IMAGE}:${tag}"
+            apptainer push ngpint_v3.sif "oras://${SIF_IMAGE}:${tag}"
+          done
