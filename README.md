@@ -10,45 +10,74 @@ This software manual describes how to operate NGPINT_V3 to generate a list of po
 
 ## Installing dependencies
 
-The use of containers for running NGPINT removes the necessities for dependencies, aside from installing one of the two container orchestration softwares [Docker](https://docs.docker.com/engine/install/) or [Singularity](https://docs.sylabs.io/guides/3.0/user-guide/installation.html).
+The use of containers for running NGPINT removes the need to install software dependencies manually, aside from installing one of the two container runtimes: [Docker](https://docs.docker.com/engine/install/) or [Apptainer](https://apptainer.org/docs/user/main/quick_start.html).
 
 
 
 # Running NGPINT_V3
 
-## Using NGPINT Containers (Docker / Singularity)
+## Using NGPINT Containers (Docker / Apptainer)
 
-NGPINT_V3 makes NGPINT available from two container repositories, `Docker` and `Singularity`.
+NGPINT_V3 publishes both `Docker` (OCI) and native `Apptainer` (`.sif`) container images to the GitHub Container Registry (GHCR).
 
-## Docker
+### Docker
 
-To use the Docker image, firt pull then image from the repository
+To use the Docker image, first pull it from GHCR:
 
-```
-docker pull schuylerds/ngpint_v3
-```
-
-And then it can be run through Docker, calling `docker`, the `run` function, the container file, followed by the arguments to the ngpint function.
-
-```
-docker run schuylerds/ngpint_v3
-docker run schuylerds/ngpint_v3 -a sample_metadata.csv
-```
-## Singularity
-
-To use the Singularity image, firt pull then image from the repository
-
-```
-singularity pull ngpint_v3.sif library://schuyler/ngpint/ngpint_v3
+```bash
+docker pull ghcr.io/wiselab2/ngpint_v3:latest
 ```
 
-And then it can be run through Singularity, calling `singularity`, the `exec` function, the `sif` container file, and then the function within the `sif` container `ngpint`, followed by the arguments to that function.
+Then run NGPINT by mounting your data, output/working directory, and metadata file into the container. The container's entrypoint already invokes `ngpint`, so pass the `-a` flag directly after the image name:
 
-```
-singularity exec ngpint_v3.sif ngpint -a metadata_from_developers.csv
+```bash
+docker run --rm \
+  -v /path/to/wrkdir:/work \
+  -v /path/to/data:/data \
+  -v /path/to/metadata.csv:/metadata.csv \
+  ghcr.io/wiselab2/ngpint_v3:latest -a /metadata.csv
 ```
 
-`NGPINT_V3` requires a configuration file that tells the program where to search for the input files and also sets a number of parameters. Click here to set up the configuration file
+- All file paths inside `metadata.csv` (FASTQ files, reference genome, GTF annotation, plasmid FASTA, and `output_directory`) must use the mounted **container paths** (e.g., `/data/...` and `/work/test_output`), not host paths.
+- Do not mount over `/opt`, which contains the NGPINT scripts and dependencies inside the container.
+- If all input files and `metadata_from_developers.csv` use relative paths in the same directory (such as the `example/` folder), you can mount that single directory and set `-w /data`:
+
+```bash
+docker run --rm \
+  -v "$(pwd)":/data \
+  -w /data \
+  ghcr.io/wiselab2/ngpint_v3:latest -a metadata_from_developers.csv
+```
+
+### Apptainer
+
+Apptainer runs containers natively in user space and automatically bind-mounts your current working directory and home directory by default.
+
+Pull the prebuilt Apptainer `.sif` image from GHCR via ORAS:
+
+```bash
+apptainer pull ngpint_v3.sif oras://ghcr.io/wiselab2/ngpint_v3-sif:latest
+```
+
+(Alternatively, Apptainer can pull and convert the Docker/OCI image directly via `apptainer pull ngpint_v3.sif docker://ghcr.io/wiselab2/ngpint_v3:latest`.)
+
+Then run NGPINT with `apptainer exec` (or `apptainer run`):
+
+```bash
+apptainer exec ngpint_v3.sif ngpint -a metadata_from_developers.csv
+```
+
+```bash
+apptainer run ngpint_v3.sif -a metadata_from_developers.csv
+```
+
+If your data or reference files live outside your home or current working directory (for example, on `/scratch` on an HPC cluster), bind that path with `-B`:
+
+```bash
+apptainer exec -B /scratch:/scratch ngpint_v3.sif ngpint -a /scratch/metadata.csv
+```
+
+`NGPINT_V3` requires a configuration file that tells the program where to search for the input files and sets pipeline parameters. See [Setting Up the Configuration File](#setting-up-the-configuration-file) below.
 
 ## Running the Demonstration Package
 
@@ -177,10 +206,24 @@ Once you have set up the configuration file, it must be identical to the provide
 
 ## Executing the program
 
-To execute the program just run the `ngpint` file and provide the configuration file as an argument. Make sure you are inside the examples folder.
+Make sure you are inside the `example` folder, then run the pipeline using either Apptainer or Docker:
+
+**Using Apptainer:**
 
 ```bash
-ngpint -a metadata_from_developers.csv
+cd example
+apptainer pull ngpint_v3.sif oras://ghcr.io/wiselab2/ngpint_v3-sif:latest
+apptainer exec ngpint_v3.sif ngpint -a metadata_from_developers.csv
+```
+
+**Using Docker:**
+
+```bash
+cd example
+docker run --rm \
+  -v "$(pwd)":/data \
+  -w /data \
+  ghcr.io/wiselab2/ngpint_v3:latest -a metadata_from_developers.csv
 ```
 
 This will create the output directory named `test_output`, which will contain all the relevant files and folders.
