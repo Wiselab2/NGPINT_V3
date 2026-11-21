@@ -46,23 +46,24 @@ The containerized versions of the software are designed to run NGPINT essentiall
 
 ## Docker
 
-To start, pull the container image from the GitHub Container Registry (GHCR):
+To start, pull the container image from the GitHub Container Registry (GHCR) and tag it locally as `ngpint`:
 
 ```bash
 docker pull ghcr.io/wiselab2/ngpint_v3:latest
+docker tag ghcr.io/wiselab2/ngpint_v3:latest ngpint
 ```
 
-The program can be run inside the container by mounting your local data, output/working directory, and metadata file into the container:
+The program can then be run inside the container by mounting your local data, output/working directory, and metadata file into the container:
 
 ```bash
 docker run --rm \
   -v /home/usr/scientist/wrkdir:/work \
   -v /home/usr/scientist/NGPINT_V3/example:/data \
   -v /home/usr/scientist/NGPINT_V3/example/metadata_from_developers.csv:/metadata.csv \
-  ghcr.io/wiselab2/ngpint_v3:latest -a /metadata.csv
+  ngpint -a /metadata.csv
 ```
 
-Host file paths will vary on Windows machines, but target paths inside the Docker container always use Linux paths. The container's entrypoint already invokes `ngpint`, so arguments such as `-a /metadata.csv` are passed directly after the image name.
+Host file paths will vary on Windows machines, but target paths inside the Docker container always use Linux paths. The container's entrypoint already invokes `ngpint`, so arguments such as `-a /metadata.csv` are passed directly after the `ngpint` image tag.
 
 - `docker run --rm`: Runs the container and removes it once execution completes.
 - `-v /home/usr/scientist/wrkdir:/work`: Mounts your local output/working directory into `/work` (set `output_directory` in your metadata file to a path inside `/work`, such as `/work/test_output`). Do not mount over `/opt`, which holds the NGPINT installation and dependencies.
@@ -77,29 +78,29 @@ To run the bundled demonstration dataset directly without editing the relative p
 docker run --rm \
   -v /home/usr/scientist/NGPINT_V3/example:/data \
   -w /data \
-  ghcr.io/wiselab2/ngpint_v3:latest -a metadata_from_developers.csv
+  ngpint -a metadata_from_developers.csv
 ```
 
 ## Apptainer
 
 Apptainer runs containers natively in user space and automatically bind-mounts your current working directory and home directory by default, so explicit mounts are typically unnecessary when your inputs and outputs reside within those directories. If your data or reference files are located on another filesystem (such as `/scratch` on an HPC cluster), bind them with `-B /scratch:/scratch`.
 
-Pull the prebuilt Apptainer SIF image from GHCR via ORAS:
+Pull the prebuilt Apptainer SIF image from GHCR via ORAS as `ngpint.sif`:
 
 ```bash
-apptainer pull ngpint_v3.sif oras://ghcr.io/wiselab2/ngpint_v3-sif:latest
+apptainer pull ngpint.sif oras://ghcr.io/wiselab2/ngpint_v3-sif:latest
 ```
 
-(Alternatively, Apptainer can pull and convert the OCI/Docker image directly via `apptainer pull ngpint_v3.sif docker://ghcr.io/wiselab2/ngpint_v3:latest`.)
+(Alternatively, Apptainer can pull and convert the OCI/Docker image directly via `apptainer pull ngpint.sif docker://ghcr.io/wiselab2/ngpint_v3:latest`.)
 
 Then run the program from your data directory using `apptainer exec` (or `apptainer run`):
 
 ```bash
-apptainer exec ngpint_v3.sif ngpint -a metadata_from_developers.csv
+apptainer exec ngpint.sif ngpint -a metadata_from_developers.csv
 ```
 
 ```bash
-apptainer run ngpint_v3.sif -a metadata_from_developers.csv
+apptainer run ngpint.sif -a metadata_from_developers.csv
 ```
 
 # Acknowledgements
